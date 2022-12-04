@@ -2,6 +2,7 @@ def main():
     with open("input", "r") as input_file:
         input_list = input_file.readlines()
     print(count_fully_contained_ranges(input_list))
+    print(count_partially_contained_ranges(input_list))
 
 
 def count_fully_contained_ranges(input_list):
@@ -11,6 +12,12 @@ def count_fully_contained_ranges(input_list):
             count += 1
     return count
 
+def count_partially_contained_ranges(input_list):
+    count = 0
+    for pair in parse_ranges(input_list):
+        if is_partially_contained(pair):
+            count += 1
+    return count
 
 def is_fully_contained(pair):
     range_1, range_2 = pair
@@ -18,6 +25,11 @@ def is_fully_contained(pair):
         return True
     return False
 
+def is_partially_contained(pair):
+    range_1, range_2 = pair
+    if (range_1[0] <= range_2[1] and range_1[1] >= range_2[0]):
+        return True
+    return False
 
 def parse_ranges(input_list):
     ranges = []
