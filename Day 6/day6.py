@@ -1,13 +1,14 @@
 def main():
     with open("input", "r") as input_file:
         datastream = input_file.readline().strip()
-    print(find_first_marker(datastream))
+    print(find_first_marker(datastream, 4))
+    print(find_first_marker(datastream, 14))
 
 
-def find_first_marker(datastream):
-    i = 3
+def find_first_marker(datastream, marker_length):
+    i = marker_length - 1
     while i < len(datastream):
-        if len(set([datastream[i], datastream[i-1], datastream[i-2], datastream[i-3]])) == 4:
+        if len(set(datastream[i-(marker_length-1):i+1])) == marker_length:
             return i + 1
         i += 1
 
