@@ -13,11 +13,18 @@ class File:
         self.size = size
 
 
+SMALL_FOLDER_SIZE = 100000
+TOTAL_SPACE = 70000000
+UNUSED_SPACE_NEEDED = 30000000
+
+
 def main():
     with open("input", "r") as input_file:
         input_list = input_file.readlines()
     root = init_folder_structure(input_list)
     print(find_small_folder_sum(root))
+    deletion_size = space_needed(root)
+    print(smallest_folder_deletion(root, deletion_size))
 
 
 def init_folder_structure(input_list):
@@ -50,10 +57,23 @@ def init_folder_structure(input_list):
 
 
 def find_small_folder_sum(folder):
-    if folder.size <= 100000:
+    if folder.size <= SMALL_FOLDER_SIZE:
         return folder.size + sum([find_small_folder_sum(f) for f in folder.subfolders])
     else:
         return sum([find_small_folder_sum(f) for f in folder.subfolders])
+
+
+def space_needed(root):
+    unused_space = TOTAL_SPACE - root.size
+    minimum_size_to_be_deleted = UNUSED_SPACE_NEEDED - unused_space
+    return minimum_size_to_be_deleted
+
+
+def smallest_folder_deletion(folder, deletion_size):
+    if folder.size >= deletion_size:
+        return min(folder.size, min([smallest_folder_deletion(f, deletion_size) for f in folder.subfolders], default=TOTAL_SPACE))
+    else:
+        return min([smallest_folder_deletion(f, deletion_size) for f in folder.subfolders], default=TOTAL_SPACE)
 
 
 if __name__ == "__main__":
