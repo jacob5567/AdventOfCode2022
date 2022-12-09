@@ -1,10 +1,11 @@
 def main():
     with open("input", "r") as input_file:
         input_list = input_file.readlines()
-    print(count_tail_positions(input_list))
+    print(count_tail_positions(input_list, 2))
+    print(count_tail_positions(input_list, 10))
 
 
-def count_tail_positions(input_list):
+def count_tail_positions(input_list, rope_size):
     direction_map = {
         "U": (0, 1),
         "D": (0, -1),
@@ -12,19 +13,22 @@ def count_tail_positions(input_list):
         "R": (1, 0)
     }
     tail_positions = set()
-    head = (0, 0)
-    tail = (0, 0)
-    tail_positions.add(tail)
+    tail_positions.add((0, 0))
+    rope = []
+    for _ in range(rope_size):
+        rope.append((0, 0))
     for line in input_list:
         direction, distance = line.strip().split(" ")
         distance = int(distance)
         for _ in range(distance):
-            head = (head[0] + direction_map[direction][0],
-                    head[1] + direction_map[direction][1])
-            if not is_touching(tail, head):
-                vector = get_vector(tail, head)
-                tail = (tail[0] + vector[0], tail[1] + vector[1])
-                tail_positions.add(tail)
+            rope[0] = (rope[0][0] + direction_map[direction][0],
+                       rope[0][1] + direction_map[direction][1])
+            for i in range(1, len(rope)):
+                if not is_touching(rope[i], rope[i - 1]):
+                    vector = get_vector(rope[i], rope[i - 1])
+                    rope[i] = (rope[i][0] + vector[0], rope[i][1] + vector[1])
+                    if i == len(rope) - 1:
+                        tail_positions.add(rope[i])
     return len(tail_positions)
 
 
