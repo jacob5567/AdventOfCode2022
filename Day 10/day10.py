@@ -43,7 +43,7 @@ def draw_screen(input_list):
             current_x += int(line.split(" ")[1])
 
     for i in range(1, 241):
-        if i % 40 - 1 in range(cycle_map[i]-1, cycle_map[i]+2):
+        if (i - 1) % 40 in range(cycle_map[i]-1, cycle_map[i]+2):
             print("#", end="")
         else:
             print(".", end="")
