@@ -34,8 +34,8 @@ def read_heightmap(input_list):
 def find_shortest_path(heightmap, start, end):
     queue = collections.deque()
     queue.append(start)
-    visited = [[False for i in range(len(heightmap[0]))]
-               for j in range(len(heightmap))]
+    visited = [[0 for _ in range(len(heightmap[0]))]
+               for _ in range(len(heightmap))]
     visited[start[0]][start[1]] = 1
     while queue:
         current = queue.popleft()
