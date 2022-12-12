@@ -4,8 +4,10 @@ import collections
 def main():
     with open("input", "r") as input_file:
         input_list = input_file.readlines()
-    heightmap, start, end = read_heightmap(input_list)
+    heightmap, start, end, start_list = read_heightmap(input_list)
     print(find_shortest_path(heightmap, start, end))
+    print(min([x for x in [find_shortest_path(heightmap, x, end)
+                           for x in start_list] if x is not None]))
 
 
 def read_heightmap(input_list):
@@ -15,13 +17,18 @@ def read_heightmap(input_list):
     char_map["E"] = 26
     start = (0, 0)
     end = (0, 0)
+    start_list = []
     for i in range(len(input_list)):
         if "S" in input_list[i]:
             start = i, input_list[i].index("S")
         if "E" in input_list[i]:
             end = i, input_list[i].index("E")
+        if "a" in input_list[i]:
+            start_list.extend(
+                ([(i, x) for x, c in enumerate(input_list[i]) if c == "a"]))
         heightmap.append([char_map[x] for x in input_list[i].strip()])
-    return heightmap, start, end
+    start_list.append(start)
+    return heightmap, start, end, start_list
 
 
 def find_shortest_path(heightmap, start, end):
