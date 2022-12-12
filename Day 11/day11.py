@@ -32,7 +32,9 @@ def main():
     with open("input", "r") as input_file:
         input = input_file.read()
     monkey_list = read_monkeys(input)
-    print(monkey_business(monkey_list, 20))
+    print(monkey_business(monkey_list, 20, True))
+    monkey_list = read_monkeys(input)
+    print(monkey_business(monkey_list, 10000, False))
 
 
 def read_monkeys(input):
@@ -52,8 +54,12 @@ def read_monkeys(input):
     return monkeys
 
 
-def monkey_business(monkeys, num_rounds):
+def monkey_business(monkeys, num_rounds, do_divide):
     activity_map = {}
+    divide_num = 1
+    for monkey in monkeys:
+        divide_num *= monkey.test
+    monkeys = sorted(monkeys, key=lambda monkey: monkey.number)
     for i in range(num_rounds):
         for monkey in monkeys:
             for j in range(len(monkey.items)):
@@ -65,7 +71,10 @@ def monkey_business(monkeys, num_rounds):
                 # execture operation
                 item = monkey.do_operation(item)
                 # monkey gets bored
-                item = item // 3
+                if do_divide:
+                    item = item // 3
+                else:
+                    item = item % divide_num
                 # throw item
                 monkeys[monkey.test_true if item % monkey.test ==
                         0 else monkey.test_false].items.append(item)
