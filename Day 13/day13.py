@@ -1,3 +1,5 @@
+import re
+
 class PacketPair:
     def __init__(self, packet_1, packet_2):
         self.packet_1 = packet_1
@@ -7,44 +9,29 @@ class PacketPair:
         return self.compare(self.packet_1, self.packet_2)
 
     def compare(self, left, right, level=0):
-        print(f"{'  ' * level}- Compare {left} vs {right}")
         if type(left) == int and type(right) == int:
             if left != right:
-                if left < right:
-                    print(f"{'  ' * (level + 1)}- Left side is smaller, so inputs are in the right order")
-                    return True
-                else:
-                    print(f"{'  ' * (level + 1)}- Right side is smaller, so inputs are not in the right order")
-                    return False
-                # return left < right
+                return left < right
             else:
                 return None
         elif type(left) == list and type(right) == list:
-            l, r = 0, 0
-            while l < len(left) and r < len(right):
-                result = self.compare(left[l], right[r], level + 1)
+            i = 0
+            while i < len(left) and i < len(right):
+                result = self.compare(left[i], right[i], level + 1)
                 if result is None:
-                    l += 1
-                    r += 1
+                    i += 1
                 else:
                     return result
+            if len(left) == len(right):
+                return None
             else:
-                if len(left) == len(right):
-                    return None
-                elif l == len(left):
-                    print(f"{'  ' * (level + 1)}- Left side ran out of items, so inputs are in the right order")
-                    return True
-                elif r == len(right):
-                    print(f"{'  ' * (level + 1)}- Right side ran out of items, so inputs are not in the right order")
-                    return False
+                return len(left) < len(right)
         elif type(left) == int and type(right) == list:
-            print(f"{'  ' * level}- Mixed types; convert left to [{left}] and retry comparison")
             return self.compare([left], right, level + 1)
         elif type(left) == list and type(right) == int:
-            print(f"{'  ' * level}- Mixed types; convert right to [{right}] and retry comparison")
             return self.compare(left, [right], level + 1)
         else:
-            return None
+            raise Exception(f"Unknown types: {type(left)} and {type(right)}")
 
     def __str__(self):
         return f"PacketPair({self.packet_1}, {self.packet_2})"
@@ -70,7 +57,7 @@ def read_packets(input):
 
 def read_packet(packet_string):
     stack = []
-    for char in packet_string:
+    for char in [x for x in re.split("(\d+|\D)", packet_string) if x != ""]:
         if char == "[":
             stack.append([])
         elif char == "]":
@@ -86,7 +73,6 @@ def read_packet(packet_string):
 def sum_inorder_packets(packets):
     sum = 0
     for i in range(len(packets)):
-        print(f"\n== Pair {i + 1} ==")
         if packets[i].is_ordered():
             sum += i + 1
     return sum
