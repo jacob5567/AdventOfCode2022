@@ -1,5 +1,6 @@
 import re
 
+
 class PacketPair:
     def __init__(self, packet_1, packet_2):
         self.packet_1 = packet_1
@@ -8,7 +9,7 @@ class PacketPair:
     def is_ordered(self):
         return self.compare(self.packet_1, self.packet_2)
 
-    def compare(self, left, right, level=0):
+    def compare(self, left, right):
         if type(left) == int and type(right) == int:
             if left != right:
                 return left < right
@@ -17,7 +18,7 @@ class PacketPair:
         elif type(left) == list and type(right) == list:
             i = 0
             while i < len(left) and i < len(right):
-                result = self.compare(left[i], right[i], level + 1)
+                result = self.compare(left[i], right[i])
                 if result is None:
                     i += 1
                 else:
@@ -27,9 +28,9 @@ class PacketPair:
             else:
                 return len(left) < len(right)
         elif type(left) == int and type(right) == list:
-            return self.compare([left], right, level + 1)
+            return self.compare([left], right)
         elif type(left) == list and type(right) == int:
-            return self.compare(left, [right], level + 1)
+            return self.compare(left, [right])
         else:
             raise Exception(f"Unknown types: {type(left)} and {type(right)}")
 
@@ -40,10 +41,50 @@ class PacketPair:
         return self.__str__()
 
 
+class Packet():
+    def __init__(self, data):
+        self.data = data
+
+    def compare(self, left, right):
+        if type(left) == int and type(right) == int:
+            if left != right:
+                return left < right
+            else:
+                return None
+        elif type(left) == list and type(right) == list:
+            i = 0
+            while i < len(left) and i < len(right):
+                result = self.compare(left[i], right[i])
+                if result is None:
+                    i += 1
+                else:
+                    return result
+            if len(left) == len(right):
+                return None
+            else:
+                return len(left) < len(right)
+        elif type(left) == int and type(right) == list:
+            return self.compare([left], right)
+        elif type(left) == list and type(right) == int:
+            return self.compare(left, [right])
+        else:
+            raise Exception(f"Unknown types: {type(left)} and {type(right)}")
+
+    def __lt__(self, other: "Packet"):
+        return self.compare(self.data, other.data)
+
+    def __str__(self):
+        return str(self.data)
+
+    def __repr__(self):
+        return self.__str__()
+
+
 def main():
     with open("input", "r") as input_file:
         input = input_file.read().strip()
     print(sum_inorder_packets(read_packets(input)))
+    print(decoder_key(read_all(input)))
 
 
 def read_packets(input):
@@ -70,12 +111,29 @@ def read_packet(packet_string):
     return stack[0]
 
 
+def read_all(input):
+    packets = []
+    for packet_string in input.split("\n"):
+        if packet_string != "":
+            packets.append(Packet(read_packet(packet_string)))
+    return packets
+
+
 def sum_inorder_packets(packets):
     sum = 0
     for i in range(len(packets)):
         if packets[i].is_ordered():
             sum += i + 1
     return sum
+
+
+def decoder_key(packets):
+    divider_1 = Packet([[2]])
+    packets.append(divider_1)
+    divider_2 = Packet([[6]])
+    packets.append(divider_2)
+    packets = sorted(packets)
+    return (packets.index(divider_1) + 1) * (packets.index(divider_2) + 1)
 
 
 if __name__ == "__main__":
