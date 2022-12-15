@@ -1,12 +1,18 @@
 import re
 import math
 
+Y_SEARCH_ROW = 2000000
+MIN_XY = 0
+MAX_XY = 4000000
+X_MULTIPLE = 4000000
+
 
 def main():
     with open("input", "r") as input_file:
         input_list = input_file.readlines()
     sensor_map, y_map = generate_max_distances(input_list)
-    print(calculate_invalid_positions(sensor_map, y_map, 2000000))
+    print(calculate_invalid_positions(sensor_map, y_map, Y_SEARCH_ROW))
+    print(find_tuning_frequency(sensor_map, find_perimeter_points(sensor_map)))
 
 
 def generate_max_distances(input_list):
@@ -67,6 +73,31 @@ def find_min_max(sensor_map):
         if x + sensor_map[x, y] > max_x:
             max_x = x + sensor_map[x, y]
     return min_x, max_x
+
+
+def find_tuning_frequency(sensor_map, perimeter_points):
+    for x, y in perimeter_points:
+        if not any(manhattan_distance(x, y, sensor[0], sensor[1]) <= sensor_map[sensor] for sensor in sensor_map.keys()):
+            return x * X_MULTIPLE + y
+
+
+def find_perimeter_points(sensor_map):
+    perimeter_points = set()
+    for x, y in sensor_map:
+        for i in range(sensor_map[x, y]):
+            x1, y1 = x + i, y + sensor_map[x, y] + 1 - i
+            if MIN_XY <= x1 <= MAX_XY and MIN_XY <= y1 <= MAX_XY:
+                perimeter_points.add((x1, y1))
+            x1, y1 = x + i, y - sensor_map[x, y] - 1 + i
+            if MIN_XY <= x1 <= MAX_XY and MIN_XY <= y1 <= MAX_XY:
+                perimeter_points.add((x1, y1))
+            x1, y1 = x - i, y + sensor_map[x, y] + 1 - i
+            if MIN_XY <= x1 <= MAX_XY and MIN_XY <= y1 <= MAX_XY:
+                perimeter_points.add((x1, y1))
+            x1, y1 = x - i, y - sensor_map[x, y] - 1 + i
+            if MIN_XY <= x1 <= MAX_XY and MIN_XY <= y1 <= MAX_XY:
+                perimeter_points.add((x1, y1))
+    return perimeter_points
 
 
 def manhattan_distance(x1, y1, x2, y2):
